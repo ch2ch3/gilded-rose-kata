@@ -23,6 +23,12 @@ sh:
 	@$(call task, /bin/sh)
 .PHONY: sh
 
+##
+# Open pry with gilded_rose.rb loaded
+repl:
+	@$(call task, pry)
+.PHONY: repl
+
 ## Helpers ####################################################################
 
 ifeq ("$(MOUNT_VOLUMES)", "true")
