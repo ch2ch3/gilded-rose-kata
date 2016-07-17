@@ -1,218 +1,341 @@
-require 'rspec/given'
 require 'gilded_rose'
 
-describe "#update_quality" do
+RSpec.describe '#update_quality' do
+  context 'with a single item' do
+    let(:initial_sell_in) { 5 }
+    let(:initial_quality) { 10 }
+    let(:item) { Item.new(name,
+                          initial_sell_in,
+                          initial_quality) }
 
-  context "with a single" do
-    Given(:initial_sell_in) { 5 }
-    Given(:initial_quality) { 10 }
-    Given(:item) { Item.new(name, initial_sell_in, initial_quality) }
-
-    When { update_quality([item]) }
-
-    context "normal item" do
-      Given(:name) { "NORMAL ITEM" }
-
-      Invariant { item.sell_in.should == initial_sell_in-1 }
-
-      context "before sell date" do
-        Then { item.quality.should == initial_quality-1 }
-      end
-
-      context "on sell date" do
-        Given(:initial_sell_in) { 0 }
-        Then { item.quality.should == initial_quality-2 }
-      end
-
-      context "after sell date" do
-        Given(:initial_sell_in) { -10 }
-        Then { item.quality.should == initial_quality-2 }
-      end
-
-      context "of zero quality" do
-        Given(:initial_quality) { 0 }
-        Then { item.quality.should == 0 }
-      end
+    before(:each) do
+      update_quality([item])
     end
 
-    context "Aged Brie" do
-      Given(:name) { "Aged Brie" }
+    subject { item }
 
-      Invariant { item.sell_in.should == initial_sell_in-1 }
+    context 'normal item' do
+      let(:name) { 'NORMAL ITEM' }
 
-      context "before sell date" do
-        Then { item.quality.should == initial_quality+1 }
+      it 'should decrease sell_in by 1' do
+        expect(subject.sell_in).to eq(initial_sell_in-1)
+      end
 
-        context "with max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
+      context 'before sell date' do
+        it 'should decrease quality by 1' do
+          expect(subject.quality).to eq(initial_quality-1)
         end
       end
 
-      context "on sell date" do
-        Given(:initial_sell_in) { 0 }
-        Then { item.quality.should == initial_quality+2 }
+      context 'on sell date' do
+        let(:initial_sell_in) { 0 }
 
-        context "near max quality" do
-          Given(:initial_quality) { 49 }
-          Then { item.quality.should == 50 }
-        end
-
-        context "with max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
+        it 'should decrease quality by 2' do
+          expect(subject.quality).to eq(initial_quality-2)
         end
       end
 
-      context "after sell date" do
-        Given(:initial_sell_in) { -10 }
-        Then { item.quality.should == initial_quality+2 }
+      context 'after sell date' do
+        let(:initial_sell_in) { -10 }
 
-        context "with max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
+        it 'should decrease quality by 2' do
+          expect(subject.quality).to eq(initial_quality-2)
+        end
+      end
+
+      context 'of zero quality' do
+        let(:initial_quality) { 0 }
+
+        it 'should not change quality' do
+          expect(subject.quality).to eq(initial_quality)
         end
       end
     end
 
-    context "Sulfuras" do
-      Given(:initial_quality) { 80 }
-      Given(:name) { "Sulfuras, Hand of Ragnaros" }
+    context 'Aged Brie' do
+      let(:name) { 'Aged Brie' }
 
-      Invariant { item.sell_in.should == initial_sell_in }
-
-      context "before sell date" do
-        Then { item.quality.should == initial_quality }
+      it 'should decrease sell_in by 1' do
+        expect(subject.sell_in).to eq(initial_sell_in-1)
       end
 
-      context "on sell date" do
-        Given(:initial_sell_in) { 0 }
-        Then { item.quality.should == initial_quality }
+      context 'before sell date' do
+        it 'should increase quality by 1' do
+          expect(subject.quality).to eq(initial_quality+1)
+        end
+
+        context 'with max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
       end
 
-      context "after sell date" do
-        Given(:initial_sell_in) { -10 }
-        Then { item.quality.should == initial_quality }
+      context 'on sell date' do
+        let(:initial_sell_in) { 0 }
+
+        it 'should increase quality by 2' do
+          expect(subject.quality).to eq(initial_quality+2)
+        end
+
+        context 'near max quality' do
+          let(:initial_quality) { 49 }
+
+          it 'should increase quality by 1' do
+            expect(subject.quality).to eq(initial_quality+1)
+          end
+        end
+
+        context 'with max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'after sell date' do
+        let(:initial_sell_in) { -10 }
+
+        it 'should increase quality by 2' do
+          expect(subject.quality).to eq(initial_quality+2)
+        end
+
+        context 'with max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
       end
     end
 
-    context "Backstage pass" do
-      Given(:name) { "Backstage passes to a TAFKAL80ETC concert" }
+    context 'Sulfuras' do
+      let(:initial_quality) { 80 }
+      let(:name) { 'Sulfuras, Hand of Ragnaros' }
 
-      Invariant { item.sell_in.should == initial_sell_in-1 }
+      it 'should not change sell_in' do
+        expect(subject.sell_in).to eq(initial_sell_in)
+      end
 
-      context "long before sell date" do
-        Given(:initial_sell_in) { 11 }
-        Then { item.quality.should == initial_quality+1 }
-
-        context "at max quality" do
-          Given(:initial_quality) { 50 }
+      context 'before sell date' do
+        it 'should not change quality' do
+          expect(subject.quality).to eq(initial_quality)
         end
       end
 
-      context "medium close to sell date (upper bound)" do
-        Given(:initial_sell_in) { 10 }
-        Then { item.quality.should == initial_quality+2 }
+      context 'on sell date' do
+        let(:initial_sell_in) { 0 }
 
-        context "at max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
+        it 'should not change quality' do
+          expect(subject.quality).to eq(initial_quality)
         end
       end
 
-      context "medium close to sell date (lower bound)" do
-        Given(:initial_sell_in) { 6 }
-        Then { item.quality.should == initial_quality+2 }
+      context 'after sell date' do
+        let(:initial_sell_in) { -10 }
 
-        context "at max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
+        it 'should not change quality' do
+          expect(subject.quality).to eq(initial_quality)
         end
-      end
-
-      context "very close to sell date (upper bound)" do
-        Given(:initial_sell_in) { 5 }
-        Then { item.quality.should == initial_quality+3 }
-
-        context "at max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
-        end
-      end
-
-      context "very close to sell date (lower bound)" do
-        Given(:initial_sell_in) { 1 }
-        Then { item.quality.should == initial_quality+3 }
-
-        context "at max quality" do
-          Given(:initial_quality) { 50 }
-          Then { item.quality.should == initial_quality }
-        end
-      end
-
-      context "on sell date" do
-        Given(:initial_sell_in) { 0 }
-        Then { item.quality.should == 0 }
-      end
-
-      context "after sell date" do
-        Given(:initial_sell_in) { -10 }
-        Then { item.quality.should == 0 }
       end
     end
 
-    context "conjured item" do
-      before { pending }
-      Given(:name) { "Conjured Mana Cake" }
+    context 'Backstage pass' do
+      let(:name) { 'Backstage passes to a TAFKAL80ETC concert' }
 
-      Invariant { item.sell_in.should == initial_sell_in-1 }
+      it 'should decrease sell_in by 1' do
+        expect(subject.sell_in).to eq(initial_sell_in-1)
+      end
 
-      context "before the sell date" do
-        Given(:initial_sell_in) { 5 }
-        Then { item.quality.should == initial_quality-2 }
+      context 'long before sell date' do
+        let(:initial_sell_in) { 11 }
+        it '' do
+          expect(subject.quality).to eq(initial_quality+1)
+        end
 
-        context "at zero quality" do
-          Given(:initial_quality) { 0 }
-          Then { item.quality.should == initial_quality }
+        context 'at max quality' do
+          let(:initial_quality) { 50 }
         end
       end
 
-      context "on sell date" do
-        Given(:initial_sell_in) { 0 }
-        Then { item.quality.should == initial_quality-4 }
+      context 'medium close to sell date (upper bound)' do
+        let(:initial_sell_in) { 10 }
 
-        context "at zero quality" do
-          Given(:initial_quality) { 0 }
-          Then { item.quality.should == initial_quality }
+        it 'should increase quality by 2' do
+          expect(subject.quality).to eq(initial_quality+2)
+        end
+
+        context 'at max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
         end
       end
 
-      context "after sell date" do
-        Given(:initial_sell_in) { -10 }
-        Then { item.quality.should == initial_quality-4 }
+      context 'medium close to sell date (lower bound)' do
+        let(:initial_sell_in) { 6 }
 
-        context "at zero quality" do
-          Given(:initial_quality) { 0 }
-          Then { item.quality.should == initial_quality }
+        it 'should increase quality by 2' do
+          expect(subject.quality).to eq(initial_quality+2)
+        end
+
+        context 'at max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'very close to sell date (upper bound)' do
+        let(:initial_sell_in) { 5 }
+
+        it 'should increase quality by 3' do
+          expect(subject.quality).to eq(initial_quality+3)
+        end
+
+        context 'at max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'very close to sell date (lower bound)' do
+        let(:initial_sell_in) { 1 }
+
+        it 'should increase quality by 3' do
+          expect(subject.quality).to eq(initial_quality+3)
+        end
+
+        context 'at max quality' do
+          let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'on sell date' do
+        let(:initial_sell_in) { 0 }
+
+        it 'should not set quality to 0' do
+          expect(subject.quality).to eq(0)
+        end
+      end
+
+      context 'after sell date' do
+        let(:initial_sell_in) { -10 }
+
+        it 'should not set quality to 0' do
+          expect(subject.quality).to eq(0)
+        end
+      end
+    end
+
+    xcontext 'conjured item' do
+      let(:name) { 'Conjured Mana Cake' }
+
+      it 'should decrease sell_in by 1' do
+        expect(subject.sell_in).to eq(initial_sell_in-1)
+      end
+
+      context 'before the sell date' do
+        let(:initial_sell_in) { 5 }
+
+        it 'should decrease quality by 2' do
+          expect(item.quality).to eq(initial_quality-2)
+        end
+
+        context 'at zero quality' do
+          let(:initial_quality) { 0 }
+
+          it 'should not change quality' do
+            expect(item.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'on sell date' do
+        let(:initial_sell_in) { 0 }
+
+        it 'should decrease quality by 4' do
+          expect(item.quality).to eq(initial_quality-4)
+        end
+
+        context 'at zero quality' do
+          let(:initial_quality) { 0 }
+
+          it 'should not change quality' do
+            expect(item.quality).to eq(initial_quality)
+          end
+        end
+      end
+
+      context 'after sell date' do
+        let(:initial_sell_in) { -10 }
+
+        it 'should decrease quality by 4' do
+          expect(item.quality).to eq(initial_quality-4)
+        end
+
+        context 'at zero quality' do
+          let(:initial_quality) { 0 }
+
+          it 'should not change quality' do
+            expect(item.quality).to eq(initial_quality)
+          end
         end
       end
     end
   end
 
-  context "with several objects" do
-    Given(:items) {
-      [
-        Item.new("NORMAL ITEM", 5, 10),
-        Item.new("Aged Brie", 3, 10),
-      ]
-    }
+  context 'with several items' do
+    let(:item) { Item.new('NORMAL ITEM',
+                          5,
+                          10) }
+    let(:brie) { Item.new('Aged Brie',
+                          3,
+                          10) }
+    let(:items) { [item, brie] }
 
-    When { update_quality(items) }
+    before(:each) do
+      update_quality(items)
+    end
 
-    Then { items[0].quality.should == 9 }
-    Then { items[0].sell_in.should == 4 }
+    context 'normal item' do
+      subject { item }
 
-    Then { items[1].quality.should == 11 }
-    Then { items[1].sell_in.should == 2 }
+      it 'should have quality 9' do
+        expect(subject.quality).to eq(9)
+      end
+
+      it 'should have sell_in 4' do
+        expect(subject.sell_in).to eq(4)
+      end
+    end
+
+    context 'brie' do
+      subject { brie }
+
+      it 'should have quality 11' do
+        expect(brie.quality).to eq(11)
+      end
+
+      it 'should have sell_in 2' do
+        expect(brie.sell_in).to eq(2)
+      end
+    end
   end
 end
