@@ -1,57 +1,80 @@
-# The Gilded Rose Code Kata
+Gilded Rose Kata
+================
 
-This is a Ruby version of the Gilded Rose Kata, found
-[here](http://iamnotmyself.com/2011/02/13/refactor-this-the-gilded-rose-kata/).
+This is a fork of Jim Weirich's implementation of the Gilded Rose Kata.
 
-This is a refactorying kata, so you will be starting with a legacy
-code base.  To work the Kata, clone this git repository and checkout
-the tag 'start-here'. Read the description below for the "rules"
-involving this kata.
+Resources:
 
-## Changes from the original
+* [Original repo](https://github.com/jimweirich/gilded_rose_kata)
+* [Kata](http://iamnotmyself.com/2011/02/13/refactor-this-the-gilded-rose-kata/)
 
-This Ruby version follows the original code very closely, but has the
-following changes:
+Changes from the original
+-------------------------
 
-* The original had no tests.  Since this is a refactoring kata, I feel
-  the tests are important and provide a fairly complete test suite.
-  Just delete the tests if you wish to "go it alone".
+*Note*: "Original" here refers to [Jim Weirich's code](https://github.com/jimweirich/gilded_rose_kata).
 
-* The original used a hard coded set of "items", presumably for
-  testing the code.  Since I added a test suite, the hard coded values
-  were not of much use.  I also changed the interface to accept a list of
-  items as a parameter rather than a hard coded constant.
+This Ruby version follows the [original code](https://github.com/jimweirich/gilded_rose_kata)
+very closely, but has the following changes:
 
-You can read
-[the original kata article](http://iamnotmyself.com/2011/02/13/refactor-this-the-gilded-rose-kata/) for more details.
+* Updated the tests for style
 
-## Installation Hints
+  I prefer not to use the `Given` / `When` / `Then` structure. I also use
+  `expect` in place of `should` which is deprecated. The content of the
+  tests remains the same.
 
-The easiest way is to use bundler to install the dependencies. To do so, you need to install the bundler gem if you haven't already done so
+* Added a Dockerfile so the project can be run without having to set up
+Ruby and RSpec
 
-    gem install bundler
+* Uses Make as a task runner
 
-run bundler
+  No real reason other than personal familiarity. These are lightweight
+  wrappers and Make is not needed for running the Dockerised project.
 
-    bundle
+As per the original, the `master` branch contains the starting point
+for the kata.
 
-and should be ready to go. Alternatively, you can install the dependencies one by one using gem install, e.g.
+Setup
+-----
 
-    gem install rspec-given
+The easiest way is to use [Docker](https://www.docker.com/).
 
-Have a look at the Gemfile for all dependencies.
+Build the image:
 
-## Git Branches
+```sh
+make build
+```
 
-* The 'master' branch contains the starting point for the kata.  It is
-  also tagged as 'start-here'.
+Run the tests:
 
-* The 'solution1' branch is my first solution for this kata.
+```sh
+make test
+```
 
-Hope you enjoy this.     -- Jim Weirich
+If you don't have/want to use Docker, the [original instructions](https://github.com/jimweirich/gilded_rose_kata#installation-hints) still work.
 
+Development
+-----------
 
-# Original Description of the Gilded Rose
+After making any changes, the project image needs to be rebuilt with
+the changed files before running the tests. This can be done in one
+command with:
+
+```sh
+make build test
+```
+
+Alternatively, you can skip the build step by mounting local volumes
+into the Docker container:
+
+```sh
+make test MOUNT_VOLUMES=true
+```
+
+Check the `Makefile` for other tasks that may be useful in development
+with Docker.
+
+Original Description of the Gilded Rose
+---------------------------------------
 
 Hi and welcome to team Gilded Rose. As you know, we are a small inn
 with a prime location in a prominent city run by a friendly innkeeper
@@ -82,7 +105,8 @@ Pretty simple, right? Well this is where it gets interesting:
     days or less and by 3 when there are 5 days or less but Quality
     drops to 0 after the concert
 
-We have recently signed a supplier of conjured items. This requires an update to our system:
+We have recently signed a supplier of conjured items. This requires an
+update to our system:
 
 - "Conjured" items degrade in Quality twice as fast as normal items
 
