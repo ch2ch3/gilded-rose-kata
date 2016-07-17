@@ -154,12 +154,17 @@ RSpec.describe '#update_quality' do
 
       context 'long before sell date' do
         let(:initial_sell_in) { 11 }
-        it '' do
+
+        it 'should increase quality by 1' do
           expect(subject.quality).to eq(initial_quality+1)
         end
 
         context 'at max quality' do
           let(:initial_quality) { 50 }
+
+          it 'should not change quality' do
+            expect(subject.quality).to eq(50)
+          end
         end
       end
 
@@ -230,7 +235,7 @@ RSpec.describe '#update_quality' do
       context 'on sell date' do
         let(:initial_sell_in) { 0 }
 
-        it 'should not set quality to 0' do
+        it 'should set quality to 0' do
           expect(subject.quality).to eq(0)
         end
       end
@@ -238,7 +243,7 @@ RSpec.describe '#update_quality' do
       context 'after sell date' do
         let(:initial_sell_in) { -10 }
 
-        it 'should not set quality to 0' do
+        it 'should set quality to 0' do
           expect(subject.quality).to eq(0)
         end
       end
